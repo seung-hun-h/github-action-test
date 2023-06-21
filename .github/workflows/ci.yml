@@ -1,0 +1,55 @@
+name: Run tests
+
+on:
+  push:
+    branches: [ main, '^\d{4}.(0[1-9]|1[012]).(0[1-9]|[12][0-9]|3[01])$' ]
+  pull_request:
+    branches: [ main, '^\d{4}.(0[1-9]|1[012]).(0[1-9]|[12][0-9]|3[01])$' ]
+  workflow_dispatch:
+
+jobs:
+  static-analysis:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'gradle'
+      - name: Execute check without tests
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: check -x test
+  test:
+    name: Testing on JDK ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'gradle'
+      - name: Execute tests
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: test
+        env:
+          CI: Github Action
+
+      - name: Publish test report
+        uses: mikepenz/action-junit-report@v3.0.3
+        if: always() # always run even if the previous step fails
+        with:
+          check_name: JUnit Test Report on JDK ${{ matrix.Java }}
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+
+      - name: Test Summary
+        uses: test-summary/action@v1
+        if: always()
+        with:
+          paths: '**/build/test-results/test/TEST-*.xml'

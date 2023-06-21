@@ -3,8 +3,11 @@
  */
 
 plugins {
-    `java-library`
+    java
     war
+    checkstyle
+    jacoco
+    id("com.github.spotbugs") version "5.0.14"
     id("com.palantir.docker") version "0.35.0"
 }
 
@@ -30,7 +33,7 @@ dependencies {
 group = "com.in28minutes.springboot.web"
 version = "0.0.1-SNAPSHOT"
 description = "todo-web-application-h2"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
@@ -60,3 +63,65 @@ docker {
     push(true)
     noCache(true)
 }
+
+checkstyle {
+    configFile = file("${project.rootDir}/tool/naver-checkstyle-rules.xml")
+    configProperties = mapOf("suppressionFile" to "${project.rootDir}/tool/naver-checkstyle-suppressions.xml")
+    toolVersion = "8.45.1"
+    isIgnoreFailures = false
+    maxErrors = 0
+    maxWarnings = 0
+}
+
+spotbugs {
+    ignoreFailures.set(false)
+    reportLevel.set(com.github.spotbugs.snom.Confidence.HIGH)
+}
+
+tasks.register("printSpotbugsMain") {
+    doLast {
+        val mainResult = file("${buildDir}/reports/spotbugs/main.text")
+        if (mainResult.exists()) {
+            mainResult.readLines().forEach {
+                println(it)
+            }
+        }
+    }
+}
+
+tasks.getByPath("spotbugsMain").finalizedBy("printSpotbugsMain")
+
+jacoco {
+    toolVersion = "0.8.7"
+    reportsDirectory.set(layout.buildDirectory.dir("${buildDir}/reports/jacoco"))
+}
+
+tasks.jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(file("${buildDir}/classes/java/main"))
+    }
+
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(file("${buildDir}/reports/jacoco/jacoco.xml"))
+        csv.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                // minimum = 0.3
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn (tasks.jacocoTestCoverageVerification)
+}
+
