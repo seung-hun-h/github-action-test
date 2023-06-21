@@ -2,9 +2,9 @@ name: Run tests
 
 on:
   push:
-    branches: [ main, '^\d{4}.(0[1-9]|1[012]).(0[1-9]|[12][0-9]|3[01])$' ]
+    branches: [ main, '^develop/\d{4}.(0[1-9]|1[012]).(0[1-9]|[12][0-9]|3[01])$' ]
   pull_request:
-    branches: [ main, '^\d{4}.(0[1-9]|1[012]).(0[1-9]|[12][0-9]|3[01])$' ]
+    branches: [ main, '^develop/\d{4}.(0[1-9]|1[012]).(0[1-9]|[12][0-9]|3[01])$' ]
   workflow_dispatch:
 
 jobs:
