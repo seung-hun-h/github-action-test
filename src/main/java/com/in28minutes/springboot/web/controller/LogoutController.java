@@ -14,15 +14,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class LogoutController {
 
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	public String logout(HttpServletRequest request,
-			HttpServletResponse response) {
-		
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
-		
+	public String logout(
+		HttpServletRequest request, HttpServletResponse response
+	) {
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 		if (authentication != null) {
-			new SecurityContextLogoutHandler().logout(request, response,
-					authentication);
+			new SecurityContextLogoutHandler().logout(request, response, authentication);
 		}
 
 		return "redirect:/";

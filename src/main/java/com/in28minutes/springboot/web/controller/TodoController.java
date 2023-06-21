@@ -23,7 +23,7 @@ import com.in28minutes.springboot.web.service.TodoRepository;
 
 @Controller
 public class TodoController {
-	
+
 	@Autowired
 	TodoRepository repository;
 
@@ -32,7 +32,7 @@ public class TodoController {
 		// Date - dd/MM/yyyy
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(
-				dateFormat, false));
+			dateFormat, false));
 	}
 
 	@RequestMapping(value = "/list-todos", method = RequestMethod.GET)
@@ -45,19 +45,20 @@ public class TodoController {
 
 	private String getLoggedInUserName(ModelMap model) {
 		Object principal = SecurityContextHolder.getContext()
-				.getAuthentication().getPrincipal();
-		
+			.getAuthentication().getPrincipal();
+
 		if (principal instanceof UserDetails) {
-			return ((UserDetails) principal).getUsername();
+			return ((UserDetails)principal).getUsername();
 		}
-		
+
 		return principal.toString();
 	}
 
 	@RequestMapping(value = "/add-todo", method = RequestMethod.GET)
 	public String showAddTodoPage(ModelMap model) {
 		model.addAttribute("todo", new Todo(0, getLoggedInUserName(model),
-				"Default Desc", new Date(), false));
+			"Default Desc", new Date(), false
+		));
 		return "todo";
 	}
 
@@ -65,7 +66,7 @@ public class TodoController {
 	public String deleteTodo(@RequestParam int id) {
 
 		//if(id==1)
-			//throw new RuntimeException("Something went wrong");
+		//throw new RuntimeException("Something went wrong");
 		repository.deleteById(id);
 		//service.deleteTodo(id);
 		return "redirect:/list-todos";
@@ -80,8 +81,10 @@ public class TodoController {
 	}
 
 	@RequestMapping(value = "/update-todo", method = RequestMethod.POST)
-	public String updateTodo(ModelMap model, @Valid Todo todo,
-			BindingResult result) {
+	public String updateTodo(
+		ModelMap model, @Valid Todo todo,
+		BindingResult result
+	) {
 
 		if (result.hasErrors()) {
 			return "todo";

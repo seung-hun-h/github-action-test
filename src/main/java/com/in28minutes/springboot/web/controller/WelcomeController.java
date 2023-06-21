@@ -18,12 +18,12 @@ public class WelcomeController {
 
 	private String getLoggedinUserName() {
 		Object principal = SecurityContextHolder.getContext()
-				.getAuthentication().getPrincipal();
-		
+			.getAuthentication().getPrincipal();
+
 		if (principal instanceof UserDetails) {
-			return ((UserDetails) principal).getUsername();
+			return ((UserDetails)principal).getUsername();
 		}
-		
+
 		return principal.toString();
 	}
 
